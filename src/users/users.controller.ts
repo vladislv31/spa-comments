@@ -1,6 +1,7 @@
 import * as bcrypt from 'bcrypt';
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('users')
 export class UsersController {
@@ -24,5 +25,11 @@ export class UsersController {
       password: hashedPassword,
     });
     return result;
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Get('/protected')
+  async protected() {
+    return '123';
   }
 }
