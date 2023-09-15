@@ -19,6 +19,7 @@ model Comment {
   children      Comment[] @relation("CommentToComment")
   author        User      @relation(fields: [authorId], references: [id])
   authorId      Int
+  extraDetails  Json      @default("{}")
   createdAt     DateTime  @default(now())
 }
 

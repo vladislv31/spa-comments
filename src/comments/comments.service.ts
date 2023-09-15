@@ -9,16 +9,31 @@ export class CommentsService {
     body,
     parentId,
     authorId,
+    file,
   }: {
     body: string;
     parentId: number;
     authorId: number;
+    file?: {
+      name?: string;
+      path?: string;
+      type?: string;
+    };
   }) {
+    const extraDetails = {};
+
+    if (file && file.name && file.path && file.type) {
+      extraDetails['fileUrl'] = file.path;
+      extraDetails['fileName'] = file.name;
+      extraDetails['fileType'] = file.type;
+    }
+
     return this.prisma.comment.create({
       data: {
         body,
-        parentId,
+        parentId: +parentId,
         authorId,
+        extraDetails: extraDetails,
       },
     });
   }
