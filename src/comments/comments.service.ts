@@ -34,7 +34,7 @@ export class CommentsService {
     page: number;
     perPage: number;
   }) {
-    const parents = await this.prisma.comment.findMany({
+    const query = {
       where: {
         parentId: null,
       },
@@ -48,16 +48,23 @@ export class CommentsService {
       },
       take: perPage,
       skip: (page - 1) * perPage,
-      orderBy: {
+      orderBy: {},
+    };
+
+    if (['username', 'email'].includes(sortBy)) {
+      query.orderBy = {
+        author: {
+          [sortBy]: sortOrder === 'undefined' ? 'desc' : sortOrder,
+        },
+      };
+    } else {
+      query.orderBy = {
         [sortBy === 'undefined' ? 'id' : sortBy]:
           sortOrder === 'undefined' ? 'desc' : sortOrder,
-      },
-    });
+      };
+    }
 
-    console.log({
-      [sortBy === 'undefined' ? 'id' : sortBy]:
-        sortOrder === 'undefined' ? 'desc' : sortOrder,
-    });
+    const parents = await this.prisma.comment.findMany(query);
 
     const count = await this.prisma.comment.count({
       where: {
