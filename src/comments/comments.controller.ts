@@ -9,22 +9,24 @@ import {
   ParseIntPipe,
   UseInterceptors,
   UploadedFile,
-  Req,
   Param,
   Res,
   HttpStatus,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
-import { diskStorage } from 'multer';
 import { AuthGuard } from '@nestjs/passport';
 import { CommentsService } from './comments.service';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { editFileName, imageFileFilter } from 'src/utils/file-upload.utils';
+import { imageFileFilter } from 'src/utils/file-upload.utils';
 import { SharpPipe } from 'src/pipes/image-processing.pipe';
+import { CreateDto } from './dto/create.dto';
 
 @Controller('comments')
 export class CommentsController {
   constructor(private readonly commentsService: CommentsService) {}
 
+  @UsePipes(new ValidationPipe())
   @UseGuards(AuthGuard('jwt'))
   @UseInterceptors(
     FileInterceptor('file', {
@@ -32,11 +34,14 @@ export class CommentsController {
     }),
   )
   @Post('/create')
-  async create(@UploadedFile(SharpPipe) file, @Req() request) {
-    console.log('=====', file);
+  async create(
+    @UploadedFile(SharpPipe) file,
+    @Request() request,
+    @Body() dto: CreateDto,
+  ) {
     return this.commentsService.create({
-      body: request.body.body,
-      parentId: request.body.parentId,
+      body: dto.body,
+      parentId: +dto.parentId,
       authorId: request.user.id,
       file: {
         path: file?.path,
