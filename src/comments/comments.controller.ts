@@ -34,8 +34,12 @@ export class CommentsController {
   getAll(
     @Query('page', ParseIntPipe) page: number,
     @Query('perPage', ParseIntPipe) perPage: number,
+    @Query('sortBy') sortBy?: string,
+    @Query('sortOrder') sortOrder?: string,
   ) {
     return this.commentsService.getAll({
+      sortBy,
+      sortOrder,
       page,
       perPage,
     });

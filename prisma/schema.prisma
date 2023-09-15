@@ -3,6 +3,7 @@
 
 generator client {
   provider = "prisma-client-js"
+  log      = ["query"]
 }
 
 datasource db {
@@ -11,20 +12,22 @@ datasource db {
 }
 
 model Comment {
-  id          Int       @id @default(autoincrement())
-  body        String
-  parentId    Int?
-  parent      Comment?  @relation("CommentToComment", fields: [parentId], references: [id])
-  children    Comment[] @relation("CommentToComment")
-  author      User      @relation(fields: [authorId], references: [id])
-  authorId    Int
+  id            Int       @id @default(autoincrement())
+  body          String
+  parentId      Int?
+  parent        Comment?  @relation("CommentToComment", fields: [parentId], references: [id])
+  children      Comment[] @relation("CommentToComment")
+  author        User      @relation(fields: [authorId], references: [id])
+  authorId      Int
+  createdAt     DateTime  @default(now())
 }
 
 model User {
-  id          Int       @id @default(autoincrement())
-  username    String    @db.VarChar(255) @unique
-  email       String    @db.VarChar(255) @unique
-  homePage    String    @db.VarChar(255)
-  password    String    @db.VarChar(255)
-  comments    Comment[]
+  id            Int       @id @default(autoincrement())
+  username      String    @db.VarChar(255) @unique
+  email         String    @db.VarChar(255) @unique
+  homePage      String    @db.VarChar(255)
+  password      String    @db.VarChar(255)
+  comments      Comment[]
+  registeredAt  DateTime  @default(now())
 }

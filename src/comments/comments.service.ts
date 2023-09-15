@@ -23,7 +23,17 @@ export class CommentsService {
     });
   }
 
-  async getAll({ page, perPage }: { page: number; perPage: number }) {
+  async getAll({
+    sortBy,
+    sortOrder,
+    page,
+    perPage,
+  }: {
+    sortBy?: string;
+    sortOrder?: string;
+    page: number;
+    perPage: number;
+  }) {
     const parents = await this.prisma.comment.findMany({
       where: {
         parentId: null,
@@ -39,11 +49,26 @@ export class CommentsService {
       take: perPage,
       skip: (page - 1) * perPage,
       orderBy: {
-        id: 'desc',
+        [sortBy === 'undefined' ? 'id' : sortBy]:
+          sortOrder === 'undefined' ? 'desc' : sortOrder,
       },
     });
 
-    return this.collectChildren(parents);
+    console.log({
+      [sortBy === 'undefined' ? 'id' : sortBy]:
+        sortOrder === 'undefined' ? 'desc' : sortOrder,
+    });
+
+    const count = await this.prisma.comment.count({
+      where: {
+        parentId: null,
+      },
+    });
+
+    return {
+      data: await this.collectChildren(parents),
+      count,
+    };
   }
 
   private async collectChildren(parrents) {
@@ -60,6 +85,9 @@ export class CommentsService {
             email: true,
           },
         },
+      },
+      orderBy: {
+        id: 'desc',
       },
     });
 
