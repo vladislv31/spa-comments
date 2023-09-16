@@ -1,23 +1,17 @@
 import { extname } from 'path';
 import { HttpException, HttpStatus } from '@nestjs/common';
 // Разрешить только изображения
-export const imageFileFilter = (req, file, callback) => {
+export const fileFilter = (req, file, callback) => {
   if (file.originalname.match(/\.(jpg|png|gif)$/)) {
     callback(null, true);
   } else if (file.originalname.match(/\.(txt)$/)) {
-    if (file.size > 102400) {
-      return callback(
-        new HttpException(
-          'Text files should not exceed 100 KB!',
-          HttpStatus.BAD_REQUEST,
-        ),
-        false,
-      );
-    }
+    callback(null, true);
   } else {
     return callback(
       new HttpException(
-        'Only image and text files are allowed!',
+        {
+          message: ['Only images and text files are allowed!'],
+        },
         HttpStatus.BAD_REQUEST,
       ),
       false,

@@ -1,4 +1,9 @@
-import { Injectable, PipeTransform } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  PipeTransform,
+} from '@nestjs/common';
 import * as fs from 'fs';
 import * as util from 'util';
 import * as path from 'path';
@@ -30,6 +35,14 @@ export class SharpPipe
           await sharp(file.buffer).toFile(path.join('uploads', convertedName));
         }
       } else {
+        if (file.size > 102400) {
+          throw new HttpException(
+            {
+              message: ['Text files should not exceed 100 KB!'],
+            },
+            HttpStatus.BAD_REQUEST,
+          );
+        }
         await writeFile(path.join('uploads', convertedName), file.buffer);
       }
 

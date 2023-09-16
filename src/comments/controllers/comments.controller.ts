@@ -17,7 +17,7 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { CommentsService } from '../providers/comments.service';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { imageFileFilter } from 'src/utils/file-upload.utils';
+import { fileFilter } from 'src/utils/file-upload.utils';
 import { SharpPipe } from 'src/pipes/image-processing.pipe';
 import { CreateDto } from '../dto/create.dto';
 import { GetAllDto } from '../dto/getAll.dto';
@@ -31,7 +31,7 @@ export class CommentsController {
   @UseGuards(AuthGuard('jwt'))
   @UseInterceptors(
     FileInterceptor('file', {
-      fileFilter: imageFileFilter,
+      fileFilter,
     }),
   )
   @Post('/create')
