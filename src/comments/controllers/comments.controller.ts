@@ -6,7 +6,6 @@ import {
   UseGuards,
   Request,
   Query,
-  ParseIntPipe,
   UseInterceptors,
   UploadedFile,
   Param,
@@ -16,11 +15,13 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { CommentsService } from './comments.service';
+import { CommentsService } from '../providers/comments.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { imageFileFilter } from 'src/utils/file-upload.utils';
 import { SharpPipe } from 'src/pipes/image-processing.pipe';
-import { CreateDto } from './dto/create.dto';
+import { CreateDto } from '../dto/create.dto';
+import { GetAllDto } from '../dto/getAll.dto';
+import { ValidateFileNamePipe } from 'src/pipes/file-name-validate.pipe';
 
 @Controller('comments')
 export class CommentsController {
@@ -53,23 +54,13 @@ export class CommentsController {
 
   @UseGuards(AuthGuard('jwt'))
   @Get('/getAll')
-  getAll(
-    @Query('page', ParseIntPipe) page: number,
-    @Query('perPage', ParseIntPipe) perPage: number,
-    @Query('sortBy') sortBy?: string,
-    @Query('sortOrder') sortOrder?: string,
-  ) {
-    return this.commentsService.getAll({
-      sortBy,
-      sortOrder,
-      page,
-      perPage,
-    });
+  getAll(@Query(new ValidationPipe({ transform: true })) dto: GetAllDto) {
+    return this.commentsService.getAll(dto);
   }
 
-  @Get('/uploads/:imagename')
-  getImage(@Param('imagename') image, @Res() res) {
-    const response = res.sendFile(image, { root: './uploads' });
+  @Get('/uploads/:filename')
+  getFile(@Param('filename', new ValidateFileNamePipe()) file, @Res() res) {
+    const response = res.sendFile(file, { root: './uploads' });
     return {
       status: HttpStatus.OK,
       data: response,
