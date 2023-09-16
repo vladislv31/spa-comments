@@ -1,13 +1,29 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import * as helmet from 'helmet';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  app.use(
+    // this seems to be supposed to protect against xss
+    helmet.contentSecurityPolicy({
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'"],
+        objectSrc: ["'none'"],
+        baseUri: ["'self'"],
+      },
+    }),
+  );
+
   app.enableCors({
     origin: 'http://localhost:8080',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });
+
   await app.listen(3000);
 }
+
 bootstrap();
