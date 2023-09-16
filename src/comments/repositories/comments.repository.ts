@@ -39,6 +39,17 @@ export class CommentsRepository {
           authorId,
           extraDetails: extraDetails,
         },
+        include: {
+          parent: {
+            include: {
+              author: {
+                select: {
+                  username: true,
+                },
+              },
+            },
+          },
+        },
       });
     } catch (error) {
       console.log(error);

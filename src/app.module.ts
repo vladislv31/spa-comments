@@ -8,6 +8,7 @@ import { CommentsModule } from './comments/comments.module';
 import { MulterModule } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import { CacheService } from './comments/providers/cache.service';
+import { NotificationsGateway } from './gateways/notifications.gateway';
 
 @Module({
   imports: [
@@ -20,6 +21,6 @@ import { CacheService } from './comments/providers/cache.service';
     CommentsModule,
   ],
   controllers: [AppController],
-  providers: [AppService, CacheService],
+  providers: [AppService, CacheService, NotificationsGateway],
 })
 export class AppModule {}

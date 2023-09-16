@@ -6,6 +6,7 @@ import { CommentsRepository } from './repositories/comments.repository';
 import { CacheService } from './providers/cache.service';
 import { CommentCreatedHandler } from './handelrs/comment-created.handlers';
 import { CqrsModule } from '@nestjs/cqrs';
+import { NotificationsGateway } from 'src/gateways/notifications.gateway';
 
 @Module({
   imports: [PrismaModule, CqrsModule],
@@ -15,6 +16,7 @@ import { CqrsModule } from '@nestjs/cqrs';
     CacheService,
     CommentCreatedHandler,
     CommentsRepository,
+    NotificationsGateway,
   ],
 })
 export class CommentsModule {}

@@ -11,7 +11,7 @@ import {
   Param,
   Res,
   HttpStatus,
-  ValidationPipe, 
+  ValidationPipe,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { CommentsService } from '../providers/comments.service';
@@ -22,10 +22,14 @@ import { CreateDto } from '../dto/create.dto';
 import { GetAllDto } from '../dto/getAll.dto';
 import { ValidateFileNamePipe } from 'src/pipes/file-name-validate.pipe';
 import { SanitizeHtmlPipe } from 'src/pipes/html-sanitize.pipe';
+import { NotificationsGateway } from 'src/gateways/notifications.gateway';
 
 @Controller('comments')
 export class CommentsController {
-  constructor(private readonly commentsService: CommentsService) {}
+  constructor(
+    private readonly commentsService: CommentsService,
+    private readonly notificationsGateway: NotificationsGateway,
+  ) {}
 
   @UseGuards(AuthGuard('jwt'))
   @UseInterceptors(
@@ -39,7 +43,7 @@ export class CommentsController {
     @Request() request,
     @Body(new ValidationPipe(), new SanitizeHtmlPipe()) dto: CreateDto,
   ) {
-    return this.commentsService.create({
+    const result = await this.commentsService.create({
       body: dto.body,
       parentId: +dto.parentId,
       authorId: request.user.id,
@@ -49,6 +53,18 @@ export class CommentsController {
         type: file?.mimetype,
       },
     });
+
+    if (
+      result.parent &&
+      result.parent.author.username !== request.user.username
+    ) {
+      this.notificationsGateway.sendNotification(
+        result.parent.author.username,
+        'You have an reply on your comment.',
+      );
+    }
+
+    return result;
   }
 
   @UseGuards(AuthGuard('jwt'))
