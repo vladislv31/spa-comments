@@ -7,6 +7,7 @@ import { AuthModule } from './auth/auth.module';
 import { CommentsModule } from './comments/comments.module';
 import { MulterModule } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
+import { CacheService } from './comments/providers/cache.service';
 
 @Module({
   imports: [
@@ -19,6 +20,6 @@ import { memoryStorage } from 'multer';
     CommentsModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, CacheService],
 })
 export class AppModule {}

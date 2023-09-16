@@ -2,12 +2,17 @@ import { Injectable } from '@nestjs/common';
 import { CommentsRepository } from '../repositories/comments.repository';
 import { GetAllDto } from '../dto/getAll.dto';
 import { ExtendedComment } from '../types/comments.types';
+import { CacheService } from './cache.service';
+import { EventBus } from '@nestjs/cqrs';
+import { CommentCreated } from '../comments.events';
 
 @Injectable()
 export class CommentsService {
-  private readonly commentsCache: Map<number, ExtendedComment[]> = new Map();
-
-  constructor(private repository: CommentsRepository) {}
+  constructor(
+    private repository: CommentsRepository,
+    private eventBus: EventBus,
+    private cache: CacheService,
+  ) {}
 
   async create(data: {
     body: string;
@@ -20,8 +25,7 @@ export class CommentsService {
     };
   }) {
     const result = await this.repository.create(data);
-    this.commentsCache.delete(result.parentId);
-
+    this.eventBus.publish(new CommentCreated(result));
     return result;
   }
 
@@ -39,8 +43,8 @@ export class CommentsService {
 
     const wasNotInCache = [];
     parentIds.forEach((parentId) => {
-      if (this.commentsCache.has(parentId)) {
-        result.push(...this.commentsCache.get(parentId));
+      if (this.cache.isExists(parentId)) {
+        result.push(...this.cache.getCached(parentId));
       } else {
         wasNotInCache.push(parentId);
       }
@@ -61,14 +65,14 @@ export class CommentsService {
       });
 
       Object.keys(toCache).forEach((key) => {
-        this.commentsCache.set(+key, toCache[key]);
+        this.cache.updateCache(+key, toCache[key]);
       });
 
       const fetchedParentId = [...new Set(children.map((c) => c.parentId))];
       wasNotInCache
         .filter((parentId) => !fetchedParentId.includes(parentId))
         .forEach((parentId) => {
-          this.commentsCache.set(parentId, []);
+          this.cache.updateCache(parentId, []);
         });
     }
 
