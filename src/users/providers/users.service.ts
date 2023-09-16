@@ -18,6 +18,10 @@ export class UsersService {
     return result;
   }
 
+  async getByUsername(username: string) {
+    return this.repository.getUser(username);
+  }
+
   async comparePasswords(username, password) {
     const user = await this.repository.getUser(username);
     if (!user) return null;
