@@ -19,11 +19,10 @@ export const fileFilter = (req, file, callback) => {
   }
 };
 export const editFileName = (file) => {
-  const name = file.originalname.split('.')[0];
   const fileExtName = extname(file.originalname);
-  const randomName = Array(4)
+  const randomName = Array(50)
     .fill(null)
     .map(() => Math.round(Math.random() * 10).toString(10))
     .join('');
-  return `${name}${randomName}${fileExtName}`;
+  return `${randomName}${fileExtName}`;
 };

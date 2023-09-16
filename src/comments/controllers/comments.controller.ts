@@ -11,8 +11,7 @@ import {
   Param,
   Res,
   HttpStatus,
-  UsePipes,
-  ValidationPipe,
+  ValidationPipe, 
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { CommentsService } from '../providers/comments.service';
@@ -22,12 +21,12 @@ import { SharpPipe } from 'src/pipes/image-processing.pipe';
 import { CreateDto } from '../dto/create.dto';
 import { GetAllDto } from '../dto/getAll.dto';
 import { ValidateFileNamePipe } from 'src/pipes/file-name-validate.pipe';
+import { SanitizeHtmlPipe } from 'src/pipes/html-sanitize.pipe';
 
 @Controller('comments')
 export class CommentsController {
   constructor(private readonly commentsService: CommentsService) {}
 
-  @UsePipes(new ValidationPipe())
   @UseGuards(AuthGuard('jwt'))
   @UseInterceptors(
     FileInterceptor('file', {
@@ -38,7 +37,7 @@ export class CommentsController {
   async create(
     @UploadedFile(SharpPipe) file,
     @Request() request,
-    @Body() dto: CreateDto,
+    @Body(new ValidationPipe(), new SanitizeHtmlPipe()) dto: CreateDto,
   ) {
     return this.commentsService.create({
       body: dto.body,
