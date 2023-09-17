@@ -9,9 +9,13 @@ import { MulterModule } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import { CacheService } from './comments/providers/cache.service';
 import { NotificationsGateway } from './gateways/notifications.gateway';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     MulterModule.register({
       storage: memoryStorage(),
     }),

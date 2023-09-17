@@ -24,10 +24,12 @@ import { GetAllDto } from '../dto/getAll.dto';
 import { ValidateFileNamePipe } from 'src/pipes/file-name-validate.pipe';
 import { SanitizeHtmlPipe } from 'src/pipes/html-sanitize.pipe';
 import { NotificationsGateway } from 'src/gateways/notifications.gateway';
+import { ConfigService } from '@nestjs/config';
 
 @Controller('comments')
 export class CommentsController {
   constructor(
+    private readonly configService: ConfigService,
     private readonly commentsService: CommentsService,
     private readonly notificationsGateway: NotificationsGateway,
   ) {}
@@ -47,7 +49,9 @@ export class CommentsController {
     // TODO: create middleware for recaptcha
     const recaptchaToken = dto.recaptchaToken;
 
-    const verificationUrl = `https://www.google.com/recaptcha/api/siteverify?secret=6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe&response=${recaptchaToken}`;
+    const verificationUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${this.configService.get<string>(
+      'RECAPTCHA_SECRET_KEY',
+    )}&response=${recaptchaToken}`;
 
     const response = await fetch(verificationUrl, {
       method: 'POST',
