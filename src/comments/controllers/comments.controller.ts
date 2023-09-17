@@ -12,6 +12,7 @@ import {
   Res,
   HttpStatus,
   ValidationPipe,
+  HttpException,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { CommentsService } from '../providers/comments.service';
@@ -43,6 +44,24 @@ export class CommentsController {
     @Request() request,
     @Body(new ValidationPipe(), new SanitizeHtmlPipe()) dto: CreateDto,
   ) {
+    // TODO: create middleware for recaptcha
+    const recaptchaToken = dto.recaptchaToken;
+
+    const verificationUrl = `https://www.google.com/recaptcha/api/siteverify?secret=6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe&response=${recaptchaToken}`;
+
+    const response = await fetch(verificationUrl, {
+      method: 'POST',
+    });
+
+    const data = await response.json();
+
+    if (!data.success) {
+      throw new HttpException(
+        'reCAPTCHA verification failed',
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
     const result = await this.commentsService.create({
       body: dto.body,
       parentId: +dto.parentId,

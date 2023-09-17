@@ -19,4 +19,6 @@ export class CreateDto {
   @IsOptional()
   @IsStringOrNumber({ message: 'shit' })
   parentId?: number;
+
+  recaptchaToken: string;
 }
