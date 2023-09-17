@@ -21,6 +21,9 @@ model Comment {
   authorId      Int
   extraDetails  Json      @default("{}")
   createdAt     DateTime  @default(now())
+
+  @@index([parentId])
+  @@index([createdAt])
 }
 
 model User {
