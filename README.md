@@ -24,7 +24,7 @@ This project is an API built with NestJS for a comment and reply system. Users c
 Clone the repository:
 
 ```
-git clone https://github.com/your-repo/nestjs-comments-api.git
+git clone https://github.com/vladislv31/spa-comments
 cd nestjs-comments-api
 ```
 
